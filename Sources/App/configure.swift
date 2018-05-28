@@ -1,5 +1,6 @@
 import FluentSQLite
 import Vapor
+import Leaf
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
@@ -11,8 +12,13 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     try routes(router)
     services.register(router, as: Router.self)
     
-    let serverConfiure = NIOServerConfig.default(port: 9090)
+    let serverConfiure = NIOServerConfig.default(hostname: "0.0.0.0", port: 9090)
     services.register(serverConfiure)
+    
+    let leafProvider = LeafProvider()
+    try services.register(leafProvider)
+    
+    config.prefer(LeafRenderer.self, for: ViewRenderer.self)
     
     /// Register middleware
     var middlewares = MiddlewareConfig() // Create _empty_ middleware config
